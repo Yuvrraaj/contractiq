@@ -36,18 +36,17 @@ def client_fixture(session: Session):
 
 @pytest.fixture(name="auth_headers")
 def auth_headers_fixture(client: TestClient, session: Session):
-    """Create a user and return auth headers."""
     user = User(
         email="test@example.com",
         full_name="Test User",
-        hashed_password=hash_password("testpass123"),
+        hashed_password=hash_password("Testpass1"),  # update this too
     )
     session.add(user)
     session.commit()
 
     response = client.post(
         "/users/login",
-        data={"username": "test@example.com", "password": "testpass123"},
+        data={"username": "test@example.com", "password": "Testpass1"},
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
@@ -65,11 +64,11 @@ def test_register_user(client: TestClient):
     response = client.post("/users/register", json={
         "email": "new@example.com",
         "full_name": "New User",
-        "password": "securepass",
+        "password": "Securepass1",  # uppercase + digit — passes your validator
     })
     assert response.status_code == 200
     assert response.json()["email"] == "new@example.com"
-    assert "hashed_password" not in response.json()  # never leak this
+    assert "hashed_password" not in response.json()
 
 
 def test_create_contract(client: TestClient, auth_headers: dict):
